@@ -1,9 +1,7 @@
 from sklearn import tree
-from sklearn.cross_validation import train_test_split 
 from sklearn.metrics import f1_score 
 import pickle
 import re
-import numpy as np
 
 # 音标对应表，把所有音标map到一个int上面去，总共有39个音标，[0,14]是元音，[15,38]是辅音
 PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER': 7,
@@ -12,6 +10,18 @@ PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER':
   'L': 25, 'M': 26, 'N': 27, 'NG': 28, 'R': 29, 'S': 30, 'SH': 31, 'T': 32, 'TH': 33,
    'V': 34, 'W': 35, 'Y': 36, 'Z': 37, 'ZH': 38}
 
+
+def get_selected_classifier():
+    """
+    抽象出一个接口给submitted train和 practice train调用，如果想要选择不同的分类器，只需要改这里
+    即可。改完后，无需再在submitted train和practice train两者之间协调。
+
+    Returns:
+        clf (classifier): 选择的分类器
+    """
+    clf = tree.DecisionTreeClassifier(criterion='gini')
+
+    return clf
 
 def s_has_pre(s):
     pre = tuple("an,dis,in,ig,il,im,ir,ne,n,non,neg,un,male,mal,pseudo,mis,de\
@@ -133,7 +143,7 @@ def getInfoOfPronsFromTrain(word,prons):
 
 def training_preprocess(data):
     """
-    preprocess the data from the helper.read_data() method.
+    preprocess the raw training data from the helper.read_data() method.
     生成训练所需要的特征矩阵x_train和训练集对应的label矩阵y_train
     
     Args:
@@ -182,7 +192,7 @@ def getInfoFromTest(word, prons):
 
 def testing_preprocess(data):
     """
-    Get the features from the testing data read through helper.read_data() method
+    Get the features from the raw testing data read through helper.read_data() method
 
     Args:
         data (list): The list data read by helper.read_data() method.
@@ -194,18 +204,18 @@ def testing_preprocess(data):
     return [getInfoFromTest(x.split(':')[0], x.split(':')[1]) for x in data]
 
 
-################# training #################
+################# Submitted training #################
 
 def train(data, classifier_file):# do not change the heading of the function
     x_train, y_train = training_preprocess(data)
-    clf = tree.DecisionTreeClassifier(criterion='gini')
+    clf = get_selected_classifier()
 
     clf.fit(x_train, y_train)
     output = open(classifier_file, 'wb')
     pickle.dump(clf, output)
     output.close()
 
-################# testing #################
+################# Submitted testing #################
 
 def test(data, classifier_file):# do not change the heading of the function
     pkl_file = open(classifier_file, 'rb')
@@ -213,3 +223,11 @@ def test(data, classifier_file):# do not change the heading of the function
     r = dt.predict(testing_preprocess(data))
     pkl_file.close()
     return list(r)
+
+
+
+#################### Practice training ##############
+
+### 这里其实好像不一定要写，可以抽象到random_test.py上面去
+
+#################### Practice testing ##############
