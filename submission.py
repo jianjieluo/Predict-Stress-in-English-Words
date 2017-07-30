@@ -111,12 +111,16 @@ def getInfoOfPronsFromTrain(word,prons):
     # 元音个数
     vowels_count = len(con_vol_combination)
     # 元音出现的序wels_counto列
-    vowels_seq = tuple([x[-1] for x in con_vol_combination])
+    # vowels_seq = tuple([x[-1] for x in con_vol_combination])
+    vowels_seq = [x[-1] for x in con_vol_combination]
+    while len(vowels_seq) < 4:
+        vowels_seq.append(-1)
+
     is_has_pre = s_has_pre(word)
 
     # 在这里构造出features，想要改的话也就在这里进行增删
-    features = [vowels_count, is_has_pre, vowels_seq, con_vol_combination]
-    
+    # features = [vowels_count, is_has_pre, vowels_seq, con_vol_combination]
+    features = [vowels_count, is_has_pre] + vowels_seq
 
     # 获得重音位置，get到label
     label = 0
@@ -127,7 +131,7 @@ def getInfoOfPronsFromTrain(word,prons):
 
     return features, label
 
-def preprocess(data):
+def training_preprocess(data):
     """
     preprocess the data from the helper.read_data() method.
     生成训练所需要的特征矩阵x_train和训练集对应的label矩阵y_train
@@ -157,34 +161,81 @@ def preprocess(data):
 
     return x_train, y_train
 
+def getInfoFromTest(word, prons):
+    """
+    Calculate the features of one testing data sample
+
+    Args:
+        word (str): The word spelling of all the upper case.
+        prons (str): A str consisting the prons of the current word.
+
+        eg. 'AVALOS:AA V AA L OW Z'
+
+        此docstring待完善
+
+    Returns:
+        features (list): The feature list of the training data sample.
+            相关的feature构造就在这个函数里面去实现就好
+            features 对应的意义：
+            0. 该单词中元音的总数(int)
+            1. 该单词是否具有前缀(bool)
+            2. 该单词的元音序列(tuple)，eg. (1,3)表示该单词的有两个元音，从左到右是AE,AH
+            3. item是tuple的一个list。item分别顺序表示该单词的每个元音元音以及其前面辅音的组合。
+                eg. NONPOISONOUS:N AA0 N P OY1 Z AH0 N AH0 S
+                则根据拼音将分成：[N, AA], [N, P, OY], [Z, AH], [N, AH]
+                再转过来就变成：[(27, 0), (27, 15, 12), (37, 2), (27, 2)]
+        label (int): The class label of the training data sample. 
+            也就是重音位置在元音的index，从1开始.Range:{0,1,2,3,4}, 0表示没有重音(虽然好像在训练集中不存在)
+    """
+
+    """
+    eg. LEARNING:L ER N IH NG
+    """
+    hasPre = s_has_pre(word)
+    mapprons = [PHONEMES[p] for p in prons.split(' ')]
+    vowels_count = 0
+    vowels_seq = []
+    for x in mapprons:
+        if x < 15:
+            vowels_count = vowels_count + 1
+            vowels_seq.append(x)
+    
+    while len(vowels_seq) < 4:
+        vowels_seq.append(-1)
+
+    return [vowels_count, hasPre] + vowels_seq
+
+
+def testing_preprocess(data):
+    """
+    Get the features from the testing data read through helper.read_data() method
+
+    Args:
+        data (list): The list data read by helper.read_data() method.
+
+    Returns:
+        x_test (array): of size [n_samples, n_features]. eg.[[1,2,3], [4,5,6]]
+    """
+
+    return [getInfoFromTest(x.split(':')[0], x.split(':')[1]) for x in data]
+
 
 ################# training #################
 
 def train(data, classifier_file):# do not change the heading of the function
-    x_train, y_train = preprocess(data)
+    x_train, y_train = training_preprocess(data)
     clf = tree.DecisionTreeClassifier(criterion='gini')
-
-    from ipdb import set_trace
-    set_trace()
 
     clf.fit(x_train, y_train)
     output = open(classifier_file, 'wb')
     pickle.dump(clf, output)
     output.close()
-    # return y_train    
 
 ################# testing #################
 
 def test(data, classifier_file):# do not change the heading of the function
-    pkl_file = open('classifier_file', 'rb')
+    pkl_file = open(classifier_file, 'rb')
     dt = pickle.load(pkl_file)
-    r = []
-    # features_and_label = get_Inf2(data)
-    # features_and_label[13] = get_type(features_and_label[13])
-    # r = dt.predict(features_and_label)
-    # for i in range (len(r)):
-    #     if r[i]==0:
-    #         r[i]=1
-    # #print(r)
+    r = dt.predict(testing_preprocess(data))
     pkl_file.close()
     return list(r)

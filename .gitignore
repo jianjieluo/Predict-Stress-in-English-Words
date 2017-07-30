@@ -3,3 +3,5 @@
 *.sw[po]
 .ipynb_checkpoints
 /.vscode
+*.pyc
+classifier_file

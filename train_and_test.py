@@ -12,3 +12,7 @@ if __name__ == '__main__':
     
     print ('testing_data: ',testing_data)
     print ('predicting_res: ', predict_res)
+
+    from sklearn.metrics import f1_score
+    ground_truth = [1, 1, 2, 1]
+    print(f1_score(ground_truth, predict_res, average='micro'))
