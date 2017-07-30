@@ -2,6 +2,7 @@ from sklearn import tree
 from sklearn.metrics import f1_score 
 import pickle
 import re
+from sklearn import linear_model
 
 # 音标对应表，把所有音标map到一个int上面去，总共有39个音标，[0,14]是元音，[15,38]是辅音
 PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER': 7,
@@ -19,8 +20,10 @@ def get_selected_classifier():
     Returns:
         clf (classifier): 选择的分类器
     """
-    clf = tree.DecisionTreeClassifier(criterion='gini')
-
+    # clf = tree.DecisionTreeClassifier(criterion='gini')
+    # clf = tree.DecisionTreeClassifier(criterion='entropy')
+    clf = linear_model.BayesianRidge()
+    
     return clf
 
 def s_has_pre(s):
@@ -196,17 +199,10 @@ def getInfoFromTest(word, prons):
     """
     eg. LEARNING:L ER N IH NG
     """
-    hasPre = s_has_pre(word)
+    is_has_pre = s_has_pre(word)
     mapprons = [PHONEMES[p] for p in prons.split(' ')]
 
     vowels_count = sum([x < 15 for x in mapprons])
-
-    # vowels_count = 0
-    # vowels_seq = []
-    # for x in mapprons:
-    #     if x < 15:
-    #         vowels_count = vowels_count + 1
-    #         vowels_seq.append(x)
 
     begin,end = 0, 0
     con_vol_combination = []
@@ -228,7 +224,7 @@ def getInfoFromTest(word, prons):
         vowels_seq.append(-1)
         combhash_seq.append(-1)
 
-    return [vowels_count, hasPre] + vowels_seq + combhash_seq
+    return [vowels_count, is_has_pre] + vowels_seq + combhash_seq
 
 def testing_preprocess(data):
     """

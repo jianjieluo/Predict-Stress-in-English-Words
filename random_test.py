@@ -28,13 +28,15 @@ if __name__ == '__main__':
     # 模式选择，输入y表示使用均值模拟，多次交叉检验，减少误差
     # 输入其他表示不使用均值模拟，减少运行时间
     print("Do you want to test for multiple times? y/n [default:n]")
-    choice = input()
+    # choice = input()
+    # 测试贝叶斯阶段先默认跑一次
+    choice = 'n'
 
     if choice != 'y':
         x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2)
         clf.fit(x_train, y_train)
-        answer = clf.predict(x_train)
-        answer2 = clf.predict(x_test)
+        answer = clf.predict(x_train).round()
+        answer2 = clf.predict(x_test).round()
         print('f1 for train = ' , f1_score(y_train, answer, average='micro'))
         print('f1 for test = ' , f1_score(y_test, answer2, average='micro'))
 
@@ -42,7 +44,7 @@ if __name__ == '__main__':
         # 进行多次随机测试，并且求出均值，以此来减少偶然型
         train_f1_li = []
         test_f1_li = []
-        for i in range(50):
+        for i in range(300):
             x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2)
             clf.fit(x_train, y_train)
 
