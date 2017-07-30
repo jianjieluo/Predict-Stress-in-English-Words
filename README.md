@@ -57,6 +57,6 @@ other contribution are welcomed.
 
 1. Some docs may be written in Chinese. In code files I **use mostly comments in English. It is not difficult to understand the code without the Chinese comments.**
 
-2. Future dev: May be update the related docs and comments in English.
+2. Future dev: update the related docs and comments in English.
 3. I hope this repo can give **a reliable reference to those who are new in data mining.**
 4. [Related course resources](https://github.com/longjj/sysu-dm-summer)
