@@ -163,32 +163,6 @@ def training_preprocess(data):
 
 def getInfoFromTest(word, prons):
     """
-    Calculate the features of one testing data sample
-
-    Args:
-        word (str): The word spelling of all the upper case.
-        prons (str): A str consisting the prons of the current word.
-
-        eg. 'AVALOS:AA V AA L OW Z'
-
-        此docstring待完善
-
-    Returns:
-        features (list): The feature list of the training data sample.
-            相关的feature构造就在这个函数里面去实现就好
-            features 对应的意义：
-            0. 该单词中元音的总数(int)
-            1. 该单词是否具有前缀(bool)
-            2. 该单词的元音序列(tuple)，eg. (1,3)表示该单词的有两个元音，从左到右是AE,AH
-            3. item是tuple的一个list。item分别顺序表示该单词的每个元音元音以及其前面辅音的组合。
-                eg. NONPOISONOUS:N AA0 N P OY1 Z AH0 N AH0 S
-                则根据拼音将分成：[N, AA], [N, P, OY], [Z, AH], [N, AH]
-                再转过来就变成：[(27, 0), (27, 15, 12), (37, 2), (27, 2)]
-        label (int): The class label of the training data sample. 
-            也就是重音位置在元音的index，从1开始.Range:{0,1,2,3,4}, 0表示没有重音(虽然好像在训练集中不存在)
-    """
-
-    """
     eg. LEARNING:L ER N IH NG
     """
     hasPre = s_has_pre(word)
