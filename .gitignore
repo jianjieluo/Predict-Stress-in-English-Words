@@ -2,3 +2,8 @@
 *~
 *.sw[po]
 .ipynb_checkpoints
+/.vscode
+*.pyc
+asset/classifier.dat
+
+.DS_Store
