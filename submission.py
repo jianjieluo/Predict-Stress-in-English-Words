@@ -78,6 +78,23 @@ def s_has_pre(s):
             return True
     return False
 
+def c_v_comb_hashing(tu):
+    """
+    Generate a hash number from the consonant and vowel combination in one tuple.
+    Rule: 每个音节代表的int占hashnu的两位，用十进制表示，体现出顺序关系
+
+    Args:
+        tu (tuple): one item in the con_vol_combination list.
+    Returns:
+        hashnu (int): the hash number of the tuple.
+    """
+    hashnu = 0
+    l = len(tu)
+    for i in range(l):
+        hashnu = hashnu + tu[i] * (10 ** (2 * (l - i - 1)))
+
+    return hashnu
+
 def getInfoOfPronsFromTrain(word,prons):
     """
     Calculate the features and label of one training data sample
@@ -119,18 +136,22 @@ def getInfoOfPronsFromTrain(word,prons):
     # 因为con_vol_combination这个list，每一项是一个'辅音+元音'的组合，每一项的最后一个都是元音，并且按照顺序排列
     # 所以接下来的很多feature都可以通过这个list来获得，避免了开销较大的迭代
     # 元音个数
+
     vowels_count = len(con_vol_combination)
     # 元音出现的序wels_counto列
     # vowels_seq = tuple([x[-1] for x in con_vol_combination])
     vowels_seq = [x[-1] for x in con_vol_combination]
+    combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
     while len(vowels_seq) < 4:
+        assert len(vowels_seq) == len(combhash_seq)
         vowels_seq.append(-1)
+        combhash_seq.append(-1)
 
     is_has_pre = s_has_pre(word)
 
     # 在这里构造出features，想要改的话也就在这里进行增删
-    # features = [vowels_count, is_has_pre, vowels_seq, con_vol_combination]
-    features = [vowels_count, is_has_pre] + vowels_seq
+    features = [vowels_count, is_has_pre] + vowels_seq + combhash_seq
+    # features = [vowels_count, is_has_pre] + combhash_seq
 
     # 获得重音位置，get到label
     label = 0
@@ -177,18 +198,37 @@ def getInfoFromTest(word, prons):
     """
     hasPre = s_has_pre(word)
     mapprons = [PHONEMES[p] for p in prons.split(' ')]
-    vowels_count = 0
-    vowels_seq = []
-    for x in mapprons:
-        if x < 15:
-            vowels_count = vowels_count + 1
-            vowels_seq.append(x)
+
+    vowels_count = sum([x < 15 for x in mapprons])
+
+    # vowels_count = 0
+    # vowels_seq = []
+    # for x in mapprons:
+    #     if x < 15:
+    #         vowels_count = vowels_count + 1
+    #         vowels_seq.append(x)
+
+    begin,end = 0, 0
+    con_vol_combination = []
+    count = vowels_count
+    while count > 0:
+        if mapprons[end] < 15:
+            con_vol_combination.append(tuple(mapprons[begin:end+1]))
+            count = count - 1
+            end = end + 1
+            begin = end
+        else:
+            end = end + 1
     
+    vowels_seq = [x[-1] for x in con_vol_combination]
+    combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
+
     while len(vowels_seq) < 4:
+        assert len(vowels_seq) == len(combhash_seq)
         vowels_seq.append(-1)
+        combhash_seq.append(-1)
 
-    return [vowels_count, hasPre] + vowels_seq
-
+    return [vowels_count, hasPre] + vowels_seq + combhash_seq
 
 def testing_preprocess(data):
     """
@@ -223,11 +263,3 @@ def test(data, classifier_file):# do not change the heading of the function
     r = dt.predict(testing_preprocess(data))
     pkl_file.close()
     return list(r)
-
-
-
-#################### Practice training ##############
-
-### 这里其实好像不一定要写，可以抽象到random_test.py上面去
-
-#################### Practice testing ##############
