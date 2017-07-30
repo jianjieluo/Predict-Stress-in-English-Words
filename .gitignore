@@ -4,4 +4,4 @@
 .ipynb_checkpoints
 /.vscode
 *.pyc
-classifier_file
+asset/classifier.dat
