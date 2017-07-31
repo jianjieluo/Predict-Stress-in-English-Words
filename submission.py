@@ -1,8 +1,11 @@
-from sklearn import tree
-from sklearn.metrics import f1_score 
 import pickle
 import re
-from sklearn import linear_model
+
+# from sklearn import linear_model
+from sklearn import tree
+# import sklearn.naive_bayes
+# from sklearn.linear_model import LogisticRegression
+# from sklearn import neighbors
 
 # 音标对应表，把所有音标map到一个int上面去，总共有39个音标，[0,14]是元音，[15,38]是辅音
 PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER': 7,
@@ -20,9 +23,16 @@ def get_selected_classifier():
     Returns:
         clf (classifier): 选择的分类器
     """
+    # 这两个需要特征为非负数，基本可以忽略
+    # clf = linear_model.BayesianRidge()
+    # clf = sklearn.naive_bayes.MultinomialNB()
+
     # clf = tree.DecisionTreeClassifier(criterion='gini')
-    # clf = tree.DecisionTreeClassifier(criterion='entropy')
-    clf = linear_model.BayesianRidge()
+    clf = tree.DecisionTreeClassifier(criterion='entropy')
+    # clf = sklearn.naive_bayes.GaussianNB()
+    # clf = sklearn.naive_bayes.BernoulliNB()
+    # clf = LogisticRegression()
+    # clf = neighbors.KNeighborsClassifier(algorithm='kd_tree')
     
     return clf
 

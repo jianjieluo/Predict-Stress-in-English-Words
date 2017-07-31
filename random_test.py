@@ -11,8 +11,6 @@ import numpy as np
 from sklearn.cross_validation import train_test_split 
 from sklearn.metrics import f1_score
 
-# The classifier moudel
-from sklearn import tree
 
 if __name__ == '__main__':
     # 先把训练集读进来，然后弄出特征矩阵和对应的label数组
@@ -29,7 +27,6 @@ if __name__ == '__main__':
     # 输入其他表示不使用均值模拟，减少运行时间
     print("Do you want to test for multiple times? y/n [default:n]")
     # choice = input()
-    # 测试贝叶斯阶段先默认跑一次
     choice = 'n'
 
     if choice != 'y':
