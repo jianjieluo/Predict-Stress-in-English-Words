@@ -5,3 +5,5 @@
 /.vscode
 *.pyc
 asset/classifier.dat
+
+.DS_Store
