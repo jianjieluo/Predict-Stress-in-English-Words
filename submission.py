@@ -1,7 +1,11 @@
-from sklearn import tree
-from sklearn.metrics import f1_score 
 import pickle
 import re
+
+# from sklearn import linear_model
+from sklearn import tree
+# import sklearn.naive_bayes
+# from sklearn.linear_model import LogisticRegression
+# from sklearn import neighbors
 
 # 音标对应表，把所有音标map到一个int上面去，总共有39个音标，[0,14]是元音，[15,38]是辅音
 PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER': 7,
@@ -19,8 +23,17 @@ def get_selected_classifier():
     Returns:
         clf (classifier): 选择的分类器
     """
-    clf = tree.DecisionTreeClassifier(criterion='gini')
+    # 这两个需要特征为非负数，基本可以忽略
+    # clf = linear_model.BayesianRidge()
+    # clf = sklearn.naive_bayes.MultinomialNB()
 
+    # clf = tree.DecisionTreeClassifier(criterion='gini')
+    clf = tree.DecisionTreeClassifier(criterion='entropy')
+    # clf = sklearn.naive_bayes.GaussianNB()
+    # clf = sklearn.naive_bayes.BernoulliNB()
+    # clf = LogisticRegression()
+    # clf = neighbors.KNeighborsClassifier(algorithm='kd_tree')
+    
     return clf
 
 def s_has_pre(s):
@@ -75,8 +88,39 @@ def s_has_pre(s):
     ,volt,vol,vor,with,zo".replace(" ","").split(","))
     for i in pre:
         if s.startswith(i.upper()):
-            return True
-    return False
+            return pre.index(i)
+    return -1
+
+def s_has_end(s):
+    end = "ee,ese,esque,se,eer,ique,ty,less,ness,ly,ible,able,ion,ic,ical,al,ian,ic,\
+    ion,ity,ment,ed,es,er,est,or,ary,ory,ous,cy,ry,ty,al,ure,ute,ble,ar,ly,less,ful,ing,\
+    ,inal,tion,sion,osis,oon,sce,\
+    que,ette,eer,ee,aire,able,ible,acy,cy,ade,age,al,al,ial,ical,an,ance,ence,ancy,\
+    ency,ant,ent,ant,ent,ient,ar,ary,ard,art,ate,ate,ate,ation,cade,drome,ed,ed,en,en,\
+    ence,ency,er,ier,er,or,er,or,ery,es,ese,ies,es,ies,ess,est,iest,fold,ful,ful,fy,ia,\
+    ian,iatry,ic,ic,ice,ify,ile,ing,ion,ish,ism,ist,ite,ity,ive,ive,ative,itive,ize,less,\
+    ly,ment,ness,or,ory,ous,eous,ose,ious,ship,ster,ure,ward,wise,ize,phy,ogy,ity,ion,ic,ical,al".replace(" ","").split(",")
+    for i in end:
+        if s.endswith(i.upper()):
+            return end.index(i)
+    return -1
+
+def c_v_comb_hashing(tu):
+    """
+    Generate a hash number from the consonant and vowel combination in one tuple.
+    Rule: 每个音节代表的int占hashnu的两位，用十进制表示，体现出顺序关系
+
+    Args:
+        tu (tuple): one item in the con_vol_combination list.
+    Returns:
+        hashnu (int): the hash number of the tuple.
+    """
+    hashnu = 0
+    l = len(tu)
+    for i in range(l):
+        hashnu = hashnu + tu[i] * (10 ** (2 * (l - i - 1)))
+
+    return hashnu
 
 def getInfoOfPronsFromTrain(word,prons):
     """
@@ -119,18 +163,23 @@ def getInfoOfPronsFromTrain(word,prons):
     # 因为con_vol_combination这个list，每一项是一个'辅音+元音'的组合，每一项的最后一个都是元音，并且按照顺序排列
     # 所以接下来的很多feature都可以通过这个list来获得，避免了开销较大的迭代
     # 元音个数
+
     vowels_count = len(con_vol_combination)
     # 元音出现的序wels_counto列
     # vowels_seq = tuple([x[-1] for x in con_vol_combination])
     vowels_seq = [x[-1] for x in con_vol_combination]
+    combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
     while len(vowels_seq) < 4:
+        assert len(vowels_seq) == len(combhash_seq)
         vowels_seq.append(-1)
+        combhash_seq.append(-1)
 
     is_has_pre = s_has_pre(word)
+    #is_has_end = s_has_end(word)
 
     # 在这里构造出features，想要改的话也就在这里进行增删
-    # features = [vowels_count, is_has_pre, vowels_seq, con_vol_combination]
-    features = [vowels_count, is_has_pre] + vowels_seq
+    features = [vowels_count, is_has_pre] + vowels_seq + combhash_seq
+    # features = [vowels_count, is_has_pre] + combhash_seq
 
     # 获得重音位置，get到label
     label = 0
@@ -175,20 +224,34 @@ def getInfoFromTest(word, prons):
     """
     eg. LEARNING:L ER N IH NG
     """
-    hasPre = s_has_pre(word)
+    is_has_pre = s_has_pre(word)
+    #is_has_end = s_has_end(word)
+
     mapprons = [PHONEMES[p] for p in prons.split(' ')]
-    vowels_count = 0
-    vowels_seq = []
-    for x in mapprons:
-        if x < 15:
-            vowels_count = vowels_count + 1
-            vowels_seq.append(x)
+
+    vowels_count = sum([x < 15 for x in mapprons])
+
+    begin,end = 0, 0
+    con_vol_combination = []
+    count = vowels_count
+    while count > 0:
+        if mapprons[end] < 15:
+            con_vol_combination.append(tuple(mapprons[begin:end+1]))
+            count = count - 1
+            end = end + 1
+            begin = end
+        else:
+            end = end + 1
     
+    vowels_seq = [x[-1] for x in con_vol_combination]
+    combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
+
     while len(vowels_seq) < 4:
+        assert len(vowels_seq) == len(combhash_seq)
         vowels_seq.append(-1)
+        combhash_seq.append(-1)
 
-    return [vowels_count, hasPre] + vowels_seq
-
+    return [vowels_count, is_has_pre] + vowels_seq + combhash_seq
 
 def testing_preprocess(data):
     """
@@ -223,11 +286,3 @@ def test(data, classifier_file):# do not change the heading of the function
     r = dt.predict(testing_preprocess(data))
     pkl_file.close()
     return list(r)
-
-
-
-#################### Practice training ##############
-
-### 这里其实好像不一定要写，可以抽象到random_test.py上面去
-
-#################### Practice testing ##############
