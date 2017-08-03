@@ -12,7 +12,7 @@ from sklearn.metrics import f1_score
 
 from sklearn import tree
 import sklearn.naive_bayes
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, BayesianRidge
 from sklearn import neighbors
 
 
@@ -31,7 +31,11 @@ if __name__ == '__main__':
     clf5 = LogisticRegression()
     clf6 = neighbors.KNeighborsClassifier(algorithm='kd_tree')
 
-    clfs = [('gini_dtree', clf1), ('entr_dtree',clf2), ('GaussianNB', clf3), ('BernoulliNB', clf4), ('LogisticRegression',clf5), ('kd_tree', clf6)]
+    clf7 = BayesianRidge()
+    clf8 = sklearn.naive_bayes.MultinomialNB()
+
+    clfs = [('gini_dtree', clf1), ('entr_dtree',clf2), ('GaussianNB', clf3), ('BernoulliNB', clf4), 
+    ('LogisticRegression',clf5), ('kd_tree', clf6), ('bayesianRidge', clf7), ('multinomialNB', clf8)]
 
     res = []
     for clf in clfs:

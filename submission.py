@@ -1,7 +1,7 @@
 import pickle
 import re
 
-# from sklearn import linear_model
+from sklearn import linear_model
 from sklearn import tree
 # import sklearn.naive_bayes
 # from sklearn.linear_model import LogisticRegression
@@ -124,6 +124,7 @@ def getInfoOfPronsFromTrain(word,prons):
             features 对应的意义：
             0. 该单词中元音的总数(int)
             1. 该单词是否具有前缀(bool)
+            # 下面这两个注释与最新版本不同。
             2. 该单词的元音序列(tuple)，eg. (1,3)表示该单词的有两个元音，从左到右是AE,AH
             3. item是tuple的一个list。item分别顺序表示该单词的每个元音元音以及其前面辅音的组合。
                 eg. NONPOISONOUS:N AA0 N P OY1 Z AH0 N AH0 S
@@ -151,14 +152,16 @@ def getInfoOfPronsFromTrain(word,prons):
     # 元音个数
 
     vowels_count = len(con_vol_combination)
-    # 元音出现的序wels_counto列
-    # vowels_seq = tuple([x[-1] for x in con_vol_combination])
+    # 元音出现的序列
     vowels_seq = [x[-1] for x in con_vol_combination]
+    # 辅音+元音组合的序列
     combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
+
+    # 两个seq补充至4位
     while len(vowels_seq) < 4:
         assert len(vowels_seq) == len(combhash_seq)
-        vowels_seq.append(-1)
-        combhash_seq.append(-1)
+        vowels_seq.append(40)
+        combhash_seq.append(40)
 
     is_has_pre = s_has_pre(word)
 
@@ -231,8 +234,8 @@ def getInfoFromTest(word, prons):
 
     while len(vowels_seq) < 4:
         assert len(vowels_seq) == len(combhash_seq)
-        vowels_seq.append(-1)
-        combhash_seq.append(-1)
+        vowels_seq.append(40)
+        combhash_seq.append(40)
 
     return [vowels_count, is_has_pre] + vowels_seq + combhash_seq
 
