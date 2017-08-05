@@ -7,3 +7,6 @@
 asset/classifier.dat
 
 .DS_Store
+
+.cache/
+__pycache__/

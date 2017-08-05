@@ -10,10 +10,66 @@ from sklearn import tree
 # 音标对应表，把所有音标map到一个int上面去，总共有39个音标，[0,14]是元音，[15,38]是辅音
 PHONEMES = {'AA': 0, 'AE': 1, 'AH': 2, 'AO': 3, 'AW': 4, 'AY': 5, 'EH': 6, 'ER': 7,
 'EY': 8, 'IH': 9, 'IY': 10, 'OW': 11, 'OY': 12, 'UH': 13, 'UW': 14, 'P': 15,
- 'B': 16, 'CH': 17, 'D': 18, 'DH': 19, 'F': 20, 'G': 21, 'HH': 22, 'JH': 23, 'K': 24,
-  'L': 25, 'M': 26, 'N': 27, 'NG': 28, 'R': 29, 'S': 30, 'SH': 31, 'T': 32, 'TH': 33,
-   'V': 34, 'W': 35, 'Y': 36, 'Z': 37, 'ZH': 38}
+'B': 16, 'CH': 17, 'D': 18, 'DH': 19, 'F': 20, 'G': 21, 'HH': 22, 'JH': 23, 'K': 24,
+'L': 25, 'M': 26, 'N': 27, 'NG': 28, 'R': 29, 'S': 30, 'SH': 31, 'T': 32, 'TH': 33,
+'V': 34, 'W': 35, 'Y': 36, 'Z': 37, 'ZH': 38}
 
+# 前缀表，元组
+PRE = ('zo', 'with', 'vor', 'volv', 'volt', 'volcan', 'vol', 'voke', 'voc', 'vivi', 'viv',
+'vita', 'vis', 'vinc', 'vid', 'vict', 'vicis', 'vice', 'vic', 'vi', 'verv', 'vert', 'vers',
+'veri', 'verb', 'ver', 'vent', 'ven', 'veh', 'vect', 'valu', 'vali', 'vale', 'vade', 'vac',
+'up', 'uni', 'under', 'un', 'umbraticum', 'umber', 'ultima', 'typ', 'ty', 'twi', 'turbo',
+'tribute', 'trib', 'tri', 'treat', 'trans，ad', 'trans', 'trai', 'tract', 'tra', 'tox', 'tort',
+'tors', 'tor', 'tom', 'tire', 'ting', 'tin', 'tig', 'thir', 'thet', 'thesis', 'therm', 'theo',
+'the', 'test', 'terra', 'terr', 'term', 'tera', 'tent', 'tens', 'tend', 'ten', 'tempo', 'tem',
+'tele', 'teg', 'tect', 'tang', 'tain', 'tag', 'tact', 'syn', 'sym', 'syl', 'sus', 'sur', 'supra',
+'super', 'sup', 'sump', 'sume', 'sum', 'sug', 'suf', 'sue', 'suc', 'sub', 'stry', 'struct', 'stru',
+'stroy', 'string', 'strict', 'strain', 'stit', 'stige', 'sti', 'stead', 'stat', 'stant', 'stand',
+'stan', 'stab', 'sta', 'st', 'spir', 'spic', 'spi', 'sphere', 'sper', 'spect', 'spec', 'soph',
+'somn', 'solv', 'solut', 'solus', 'solu', 'sol', 'soci', 'sist', 'simul', 'simil', 'signi', 'sign',
+'sid', 'sex', 'sess', 'ses', 'serv', 'sequ', 'sept', 'sent', 'sens', 'sen', 'semi', 'sed', 'secu',
+'sect', 'secr', 'sec', 'se', 'script', 'scrib', 'scope', 'scio', 'scientia', 'sci', 'scen', 'satis',
+'sat', 'sanct', 'sanc', 'salv', 'salu', 'sacr', 'rupt', 'roga', 'rog', 'risi', 'ridi', 'ri', 'retro',
+'reg', 'recti', 're', 'quis', 'quir', 'quip', 'quint', 'quest', 'quer', 'quat', 'quad', 'pute', 'pur',
+'punct', 'puls', 'psych', 'pseudo', 'proto', 'pro', 'prin', 'prime', 'prim', 'pri', 'prehendere',
+'pre', 'pound', 'pot', 'post', 'pos', 'portion', 'port', 'pop', 'pond', 'pon', 'poly', 'poli', 'pod',
+'pneumon', 'pneuma', 'ply', 'plus', 'plur', 'plu', 'plore', 'pli', 'plais', 'plac', 'pict', 'pico',
+'photo', 'phot', 'phon', 'phobos', 'phobia', 'phlegma', 'phil', 'phen', 'phe', 'phas', 'phant',
+'phan', 'phage', 'peri', 'per', 'penta', 'pens', 'pene', 'pend', 'pel', 'pedo', 'ped', 'patr',
+'pathy', 'path', 'pater', 'pat', 'pass', 'pare', 'para', 'pan', 'paleo', 'pair', 'pac', 'over',
+'out', 'ortho', 'oper', 'op', 'onym', 'omni', 'ology', 'oligo', 'of', 'oct', 'oc', 'ob', 'nym',
+'numisma', 'numer', 'nox', 'nov', 'non', 'nomin', 'nomen', 'nom', 'noc', 'neur', 'neo', 'neg',
+'ne', 'nat', 'nasc', 'nano', 'nai', 'n', 'myria', 'multi', 'mov', 'mot', 'mort', 'morph', 'mor',
+'mono', 'mon', 'mob', 'mit', 'miss', 'mis', 'min', 'milli', 'mill', 'migra', 'mid', 'micro', 'metr',
+'meter', 'meta', 'meso', 'mer', 'ment', 'mem', 'mega', 'medi', 'med', 'matri', 'mari', 'mar', 'manu',
+'mania', 'mand', 'man', 'male', 'mal', 'main', 'magni', 'magn', 'macro', 'macr', 'macer', 'lut',
+'lust', 'lus', 'lun', 'lum', 'lude', 'luc', 'lot', 'loqu', 'logo', 'log', 'locut', 'loco', 'loc',
+'liver', 'liter', 'lig', 'lide', 'liber', 'lex', 'levi', 'leg', 'lect', 'leag', 'lav', 'lau', 'labor',
+'kilo', 'juven', 'just', 'junct', 'jug', 'judice', 'join', 'ject', 'jac', 'ir', 'intro', 'intra',
+'inter', 'intel', 'infra', 'in', 'im', 'il', 'ignis', 'ig', 'ics', 'hypn', 'hyper', 'hydro', 'hydra',
+'hydr', 'human', 'hum', 'homo', 'hex', 'hetero', 'hes', 'here', 'her', 'hemo', 'hemi', 'hema', 'helio',
+'hecto', 'hect', 'heal', 'hale', 'gress', 'greg', 'gree', 'grav', 'grat', 'graph', 'gram', 'graf',
+'grad', 'gor', 'gnos', 'gnant', 'glu', 'glot', 'gloss', 'glo', 'gin', 'giga', 'gest', 'germ', 'geo',
+'gen', 'ge', 'gastro', 'gastr', 'gam', 'fuse', 'fuge', 'frai', 'frag', 'fract', 'fort', 'form',
+'fore', 'forc', 'for', 'flux', 'fluv', 'fluc', 'flu', 'flict', 'flex', 'flect', 'fix', 'fit', 'fin',
+'fili', 'fila', 'fig', 'fide', 'fid', 'fic', 'fess', 'fer', 'femto', 'feign', 'feder', 'fect', 'fec',
+'feat', 'fea', 'fas', 'fant', 'fan', 'fals', 'fall', 'fain', 'fact', 'fac', 'fa', 'extro', 'extra',
+'exter', 'ex', 'ev', 'eu', 'et', 'es', 'erg', 'equi', 'epi', 'enni', 'end', 'en', 'em', 'ecto', 'eco',
+'ec', 'dys', 'dynam', 'dy', 'dura', 'duct', 'duc', 'dox', 'dorm', 'dont', 'don', 'domin', 'doct',
+'doc', 'div', 'dit', 'dis', 'dign', 'dif', 'dict', 'dic', 'dia', 'di', 'deun', 'derm', 'dent', 'demo',
+'demi', 'dem', 'dei', 'deco', 'deci', 'deca', 'dec', 'de', 'cyclo', 'cycl', 'cuse', 'cus', 'curs',
+'curr', 'cura', 'cur', 'cru', 'crit', 'cret', 'cresc', 'cred', 'crease', 'crea', 'cre', 'crat',
+'cracy', 'cour', 'counter', 'cosm', 'cort', 'corp', 'cord', 'cor', 'cop', 'contro', 'contre',
+'contra', 'contr', 'con', 'com', 'coll', 'col', 'cogn', 'cog', 'co', 'clusclaus', 'clud', 'clin',
+'clam', 'claim', 'civ', 'cit', 'cise', 'cis', 'circum', 'circu', 'cip', 'cide', 'cid', 'chron',
+'chrom', 'cess', 'cept', 'centri', 'centr', 'centi', 'cent', 'ceiv', 'ceed', 'cede', 'ced', 'ceas',
+'caut', 'cause', 'caus', 'cath', 'cata', 'cat', 'cas', 'carn', 'cardi', 'capt', 'capit', 'cap',
+'calor', 'cad', 'by', 'brev', 'bio', 'bine', 'bin', 'biblio', 'bibli', 'bibl', 'bi', 'bene', 'belli',
+'be', 'bar', 'auto', 'aut', 'aus', 'aur', 'aug', 'audi', 'aud', 'auc', 'at', 'astr', 'aster', 'as',
+'arch', 'ar', 'aqu', 'apo', 'aph', 'ap', 'antico', 'anti', 'anthrop', 'ante', 'ant', 'ano', 'annu',
+'ann', 'anim', 'ang', 'andro', 'andr', 'ana', 'an', 'amor', 'ami', 'ambul', 'ambi', 'am', 'alter',
+'alt', 'allo', 'ali', 'albo', 'alb', 'al', 'agro', 'agri', 'agi', 'ag', 'af', 'aero', 'aer', 'ad',
+'acu', 'act', 'acri', 'acid', 'acer', 'ac', 'abs', 'ab')
 
 def get_selected_classifier():
     """
@@ -36,73 +92,19 @@ def get_selected_classifier():
     
     return clf
 
-def s_has_pre(s):
-    pre = tuple("an,dis,in,ig,il,im,ir,ne,n,non,neg,un,male,mal,pseudo,mis,de\
-    un,anti,ant,contra,contre,contro,counter,ob,oc,of,op,with,by,circum,\
-    circu,de,en,ex,ec,es,fore,in,il,im,ir,inter,intel,intro,medi,med,mid,out,\
-    over,post,pre,pro,sub,suc,suf,sug,sup,sur,sus,sur,trans,under,up,\
-    ante,anti,ex,fore,mid,medi,post,pre,pri,out,over,post,pre,pro,sub,suc,suf,\
-    sug,sum,sup,sur,sus,super,sur,trans,under,up,ante,anti,ex,fore,mid,medi,post,\
-    pre,pri,pro,re,by,extra,hyper,out,over,sub,suc,sur,super,sur,under,vice,com,\
-    cop,con,cor,co,syn,syl,sym,al,over,pan,ex,for,re,se,dia,per,pel,trans，ad,\
-    ac,af,ag,an,ap,ar,as,at,ambi,bin,di,twi,tri,thir,deca,deco,dec,deci,hecto,\
-    hect,centi,kilo,myria,mega,micro,multi,poly,hemi,demi,semi,pene,arch,auto,bene,\
-    eu,male,mal,macro,magni,micro,aud,bio,ge,phon,tele,\
-    ac,ad,af,ag,al,an,ap,as,at,an,ab,abs,acer,acid,acri,act,ag,acu,aer,aero,ag,agi,\
-    ig,act,agri,agro,alb,albo,ali,allo,alter,alt,am,ami,amor,ambi,ambul,ana,ano,andr,\
-    andro,ang,anim,ann,annu,enni,ante,anthrop,anti,ant,anti,antico,apo,ap,aph,aqu,arch,\
-    aster,astr,auc,aug,aut,aud,audi,aur,aus,aug,auc,aut,auto,bar,be,belli,bene,bi,bine,\
-    bibl,bibli,biblio,bio,bi,brev,cad,cap,cas,ceiv,cept,capt,cid,cip,cad,cas,calor,capit,\
-    capt,carn,cat,cata,cath,caus,caut,cause,cuse,cus,ceas,ced,cede,ceed,cess,cent,centr,\
-    centri,chrom,chron,cide,cis,cise,circum,cit,civ,clam,claim,clin,clud,clusclaus,co,cog,\
-    col,coll,con,com,cor,cogn,gnos,com,con,contr,contra,counter,cord,cor,cardi,corp,cort,\
-    cosm,cour,cur,curr,curs,crat,cracy,cre,cresc,cret,crease,crea,cred,cresc,cret,crease,\
-    cru,crit,cur,curs,cura,cycl,cyclo,de,dec,deca,dec,dign,dei,div,dem,demo,dent,dont,derm,\
-    di,dy,dia,dic,dict,dit,dis,dif,dit,doc,doct,domin,don,dorm,dox,duc,duct,dura,dynam,dys,\
-    ec,eco,ecto,en,em,end,epi,equi,erg,ev,et,ex,exter,extra,extro,fa,fess,fac,fact,fec,fect,\
-    fic,fas,fea,fall,fals,femto,fer,fic,feign,fain,fit,feat,fid,fid,fide,feder,fig,fila,fili,\
-    fin,fix,flex,flect,flict,flu,fluc,fluv,flux,for,fore,forc,fort,form,fract,frag,frai,fuge,\
-    fuse,gam,gastr,gastro,gen,gen,geo,germ,gest,giga,gin,gloss,glot,glu,glo,gor,grad,gress\
-    ,gree,graph,gram,graf,grat,grav,greg,hale,heal,helio,hema,hemo,her,here,hes,hetero,hex\
-    ,ses,sex,homo,hum,human,hydr,hydra,hydro,hyper,hypn,an,ics,ignis,in,im,in,im,il,ir,infra\
-    ,inter,intra,intro,ty,jac,ject,join,junct,judice,jug,junct,just,juven,labor,lau,lav,lot\
-    ,lut,lect,leg,lig,leg,levi,lex,leag,leg,liber,liver,lide,liter,loc,loco,log,logo,ology\
-    ,loqu,locut,luc,lum,lun,lus,lust,lude,macr,macer,magn,main,mal,man,manu,mand,mania,mar\
-    ,mari,mer,matri,medi,mega,mem,ment,meso,meta,meter,metr,micro,migra,mill,kilo,milli,min\
-    ,mis,mit,miss,mob,mov,mot,mon,mono,mor,mort,morph,multi,nano,nasc,nat,gnant,nai,nat,nasc\
-    ,neo,neur,nom,nom,nym,nomen,nomin,non,non,nov,nox,noc,numer,numisma,ob,oc,of,op,oct,oligo\
-    ,omni,onym,oper,ortho,over,pac,pair,pare,paleo,pan,para,pat,pass,path,pater,patr,path,pathy\
-    ,ped,pod,pedo,pel,puls,pend,pens,pond,per,peri,phage,phan,phas,phen,fan,phant,fant,phe,phil\
-    ,phlegma,phobia,phobos,phon,phot,photo,pico,pict,plac,plais,pli,ply,plore,plu,plur,plus,pneuma\
-    ,pneumon,pod,poli,poly,pon,pos,pound,pop,port,portion,post,pot,pre,pur,prehendere,prin,prim,\
-    prime,pro,proto,psych,punct,pute,quat,quad,quint,penta,quip,quir,quis,quest,quer,re,reg,recti\
-    ,retro,ri,ridi,risi,rog,roga,rupt,sacr,sanc,secr,salv,salu,sanct,sat,satis,sci,scio,scientia,\
-    scope,scrib,script,se,sect,sec,sed,sess,sid,semi,sen,scen,sent,sens,sept,sequ,secu,sue,serv,\
-    sign,signi,simil,simul,sist,sta,stit,soci,sol,solus,solv,solu,solut,somn,soph,spec,spect,spi,\
-    spic,sper,sphere,spir,stand,stant,stab,stat,stan,sti,sta,st,stead,strain,strict,string,stige,\
-    stru,struct,stroy,stry,sub,suc,suf,sup,sur,sus,sume,sump,super,supra,syn,sym,tact,tang,tag,tig,\
-    ting,tain,ten,tent,tin,tect,teg,tele,tem,tempo,ten,tin,tain,tend,tent,tens,tera,term,terr,terra,\
-    test,the,theo,therm,thesis,thet,tire,tom,tor,tors,tort,tox,tract,tra,trai,treat,trans,tri,trib,\
-    tribute,turbo,typ,ultima,umber,umbraticum,un,uni,vac,vade,vale,vali,valu,veh,vect,ven,vent,ver,\
-    veri,verb,verv,vert,vers,vi,vic,vicis,vict,vinc,vid,vis,viv,vita,vivi,voc,voke,vol,volcan,volv\
-    ,volt,vol,vor,with,zo".replace(" ","").split(","))
-    for i in pre:
-        if s.startswith(i.upper()):
-            return pre.index(i)
-    return -1
+def s_has_pre(word):
+    """
+    查看前缀表，看看word是否有相关的前缀
 
-def s_has_end(s):
-    end = "ee,ese,esque,se,eer,ique,ty,less,ness,ly,ible,able,ion,ic,ical,al,ian,ic,\
-    ion,ity,ment,ed,es,er,est,or,ary,ory,ous,cy,ry,ty,al,ure,ute,ble,ar,ly,less,ful,ing,\
-    ,inal,tion,sion,osis,oon,sce,\
-    que,ette,eer,ee,aire,able,ible,acy,cy,ade,age,al,al,ial,ical,an,ance,ence,ancy,\
-    ency,ant,ent,ant,ent,ient,ar,ary,ard,art,ate,ate,ate,ation,cade,drome,ed,ed,en,en,\
-    ence,ency,er,ier,er,or,er,or,ery,es,ese,ies,es,ies,ess,est,iest,fold,ful,ful,fy,ia,\
-    ian,iatry,ic,ic,ice,ify,ile,ing,ion,ish,ism,ist,ite,ity,ive,ive,ative,itive,ize,less,\
-    ly,ment,ness,or,ory,ous,eous,ose,ious,ship,ster,ure,ward,wise,ize,phy,ogy,ity,ion,ic,ical,al".replace(" ","").split(",")
-    for i in end:
-        if s.endswith(i.upper()):
-            return end.index(i)
+    Args:
+        word (str): The word
+
+    Returns:
+        index (int): if found in PRE, return the index of the PRE. if not, return -1
+    """
+    for i in PRE:
+        if word.startswith(i.upper()):
+            return PRE.index(i)
     return -1
 
 def c_v_comb_hashing(tu):
@@ -114,6 +116,15 @@ def c_v_comb_hashing(tu):
         tu (tuple): one item in the con_vol_combination list.
     Returns:
         hashnu (int): the hash number of the tuple.
+
+
+    example:
+        step1. 原始数据：LEARNING:L ER N IH NG
+        step2. 音标list：[L, ER, N, IH, NG]
+        step3. 音标map：[25, 7, 27, 9, 28] （查submission.py里面的音标表）
+        step4. 辅音+元音组合系列：[(25,7), (27,9)]. （这里没有考虑28，因为考虑的组合是以元音作为结尾）
+        step5. 哈希一下：[2507, 2709]
+        step6. 最后的feature matrix的后四位：[2507, 2709, -1,-1]
     """
     hashnu = 0
     l = len(tu)
@@ -136,13 +147,14 @@ def getInfoOfPronsFromTrain(word,prons):
         features (list): The feature list of the training data sample.
             相关的feature构造就在这个函数里面去实现就好
             features 对应的意义：
-            0. 该单词中元音的总数(int)
-            1. 该单词是否具有前缀(bool)
-            2. 该单词的元音序列(tuple)，eg. (1,3)表示该单词的有两个元音，从左到右是AE,AH
-            3. item是tuple的一个list。item分别顺序表示该单词的每个元音元音以及其前面辅音的组合。
-                eg. NONPOISONOUS:N AA0 N P OY1 Z AH0 N AH0 S
-                则根据拼音将分成：[N, AA], [N, P, OY], [Z, AH], [N, AH]
-                再转过来就变成：[(27, 0), (27, 15, 12), (37, 2), (27, 2)]
+    features = vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
+
+            [0,3] 该单词从左到右的元音序列，题目已经限制元音数小于5，不存在赋值为-1 
+                eg. 若发音从左到右的元音是是AE,AH， 则结果为 [1,3,-1,-1]
+            [4,8] 从左到右辅音+元音组合，因为元音数小于5，所以组合数也一定小于5。用c_v_comb_hashing方法来构建有意义的部分，
+            不存在赋值为-1
+            9. 该单词中元音的总数(int)
+            10. 该单词若有前缀，在前缀表的index，若没有在给出前缀中，则赋值为-1
         label (int): The class label of the training data sample. 
             也就是重音位置在元音的index，从1开始.Range:{0,1,2,3,4}, 0表示没有重音(虽然好像在训练集中不存在)
     """
@@ -165,28 +177,32 @@ def getInfoOfPronsFromTrain(word,prons):
     # 元音个数
 
     vowels_count = len(con_vol_combination)
-    # 元音出现的序wels_counto列
-    # vowels_seq = tuple([x[-1] for x in con_vol_combination])
+    # 元音出现的序列
     vowels_seq = [x[-1] for x in con_vol_combination]
+    # 辅音+元音组合的序列
     combhash_seq = [c_v_comb_hashing(tu) for tu in con_vol_combination]
+
+    # 两个seq补充至4位
     while len(vowels_seq) < 4:
         assert len(vowels_seq) == len(combhash_seq)
         vowels_seq.append(-1)
         combhash_seq.append(-1)
 
     is_has_pre = s_has_pre(word)
-    #is_has_end = s_has_end(word)
 
     # 在这里构造出features，想要改的话也就在这里进行增删
-    features = [vowels_count, is_has_pre] + vowels_seq + combhash_seq
-    # features = [vowels_count, is_has_pre] + combhash_seq
+    features = vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
 
     # 获得重音位置，get到label
     label = 0
-    index = prons.find('1')
-    if index != -1:
-        # 这句有一定数据依赖性，因为所有元音都是两个字符
-        label = 1 + vowels_seq.index(PHONEMES[prons[index-2:index]])
+    for p in prons.split(' '):
+        if p[-1].isdigit():
+            label = label + 1
+            if p[-1] == '1':
+                break
+    else:
+        # no primary stress
+        label = 0
 
     return features, label
 
@@ -225,8 +241,6 @@ def getInfoFromTest(word, prons):
     eg. LEARNING:L ER N IH NG
     """
     is_has_pre = s_has_pre(word)
-    #is_has_end = s_has_end(word)
-
     mapprons = [PHONEMES[p] for p in prons.split(' ')]
 
     vowels_count = sum([x < 15 for x in mapprons])
@@ -251,7 +265,7 @@ def getInfoFromTest(word, prons):
         vowels_seq.append(-1)
         combhash_seq.append(-1)
 
-    return [vowels_count, is_has_pre] + vowels_seq + combhash_seq
+    return vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
 
 def testing_preprocess(data):
     """

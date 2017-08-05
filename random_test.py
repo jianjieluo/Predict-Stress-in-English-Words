@@ -42,6 +42,8 @@ if __name__ == '__main__':
         train_f1_li = []
         test_f1_li = []
         for i in range(300):
+            print ('time ', i)
+
             x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2)
             clf.fit(x_train, y_train)
 
