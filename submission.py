@@ -92,9 +92,18 @@ def get_selected_classifier():
     
     return clf
 
-def s_has_pre(s):
+def s_has_pre(word):
+    """
+    查看前缀表，看看word是否有相关的前缀
+
+    Args:
+        word (str): The word
+
+    Returns:
+        index (int): if found in PRE, return the index of the PRE. if not, return -1
+    """
     for i in PRE:
-        if s.startswith(i.upper()):
+        if word.startswith(i.upper()):
             return PRE.index(i)
     return -1
 
@@ -107,23 +116,15 @@ def c_v_comb_hashing(tu):
         tu (tuple): one item in the con_vol_combination list.
     Returns:
         hashnu (int): the hash number of the tuple.
-    """
-    hashnu = 0
-    l = len(tu)
-    for i in range(l):
-        hashnu = hashnu + tu[i] * (10 ** (2 * (l - i - 1)))
 
-    return hashnu
 
-def c_v_comb_hashing(tu):
-    """
-    Generate a hash number from the consonant and vowel combination in one tuple.
-    Rule: 每个音节代表的int占hashnu的两位，用十进制表示，体现出顺序关系
-
-    Args:
-        tu (tuple): one item in the con_vol_combination list.
-    Returns:
-        hashnu (int): the hash number of the tuple.
+    example:
+        step1. 原始数据：LEARNING:L ER N IH NG
+        step2. 音标list：[L, ER, N, IH, NG]
+        step3. 音标map：[25, 7, 27, 9, 28] （查submission.py里面的音标表）
+        step4. 辅音+元音组合系列：[(25,7), (27,9)]. （这里没有考虑28，因为考虑的组合是以元音作为结尾）
+        step5. 哈希一下：[2507, 2709]
+        step6. 最后的feature matrix的后四位：[2507, 2709, -1,-1]
     """
     hashnu = 0
     l = len(tu)
@@ -146,14 +147,14 @@ def getInfoOfPronsFromTrain(word,prons):
         features (list): The feature list of the training data sample.
             相关的feature构造就在这个函数里面去实现就好
             features 对应的意义：
-            0. 该单词中元音的总数(int)
-            1. 该单词是否具有前缀(bool)
-            # 下面这两个注释与最新版本不同。
-            2. 该单词的元音序列(tuple)，eg. (1,3)表示该单词的有两个元音，从左到右是AE,AH
-            3. item是tuple的一个list。item分别顺序表示该单词的每个元音元音以及其前面辅音的组合。
-                eg. NONPOISONOUS:N AA0 N P OY1 Z AH0 N AH0 S
-                则根据拼音将分成：[N, AA], [N, P, OY], [Z, AH], [N, AH]
-                再转过来就变成：[(27, 0), (27, 15, 12), (37, 2), (27, 2)]
+    features = vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
+
+            [0,3] 该单词从左到右的元音序列，题目已经限制元音数小于5，不存在赋值为-1 
+                eg. 若发音从左到右的元音是是AE,AH， 则结果为 [1,3,-1,-1]
+            [4,8] 从左到右辅音+元音组合，因为元音数小于5，所以组合数也一定小于5。用c_v_comb_hashing方法来构建有意义的部分，
+            不存在赋值为-1
+            9. 该单词中元音的总数(int)
+            10. 该单词若有前缀，在前缀表的index，若没有在给出前缀中，则赋值为-1
         label (int): The class label of the training data sample. 
             也就是重音位置在元音的index，从1开始.Range:{0,1,2,3,4}, 0表示没有重音(虽然好像在训练集中不存在)
     """
@@ -194,10 +195,14 @@ def getInfoOfPronsFromTrain(word,prons):
 
     # 获得重音位置，get到label
     label = 0
-    index = prons.find('1')
-    if index != -1:
-        # 这句有一定数据依赖性，因为所有元音都是两个字符
-        label = 1 + vowels_seq.index(PHONEMES[prons[index-2:index]])
+    for p in prons.split(' '):
+        if p[-1].isdigit():
+            label = label + 1
+            if p[-1] == '1':
+                break
+    else:
+        # no primary stress
+        label = 0
 
     return features, label
 

@@ -41,7 +41,8 @@ if __name__ == '__main__':
     for clf in clfs:
         train_f1_li = []
         test_f1_li = []
-        for _ in range(300):
+        for i in range(300):
+            print (clf[0], ' tries ', i, ' times.')
             x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size = 0.2)
             clf[1].fit(x_train, y_train)
 
