@@ -75,11 +75,8 @@ clf4 = sklearn.naive_bayes.BernoulliNB()
 clf5 = LogisticRegression()
 clf6 = neighbors.KNeighborsClassifier(algorithm='kd_tree')
 
-clf7 = BayesianRidge()
-clf8 = sklearn.naive_bayes.MultinomialNB()
-
 clfs = [('gini_dtree', clf1), ('entr_dtree',clf2), ('GaussianNB', clf3), ('BernoulliNB', clf4), 
-('LogisticRegression',clf5), ('kd_tree', clf6), ('bayesianRidge', clf7), ('multinomialNB', clf8)]
+('LogisticRegression',clf5), ('kd_tree', clf6)]
 
 res = []
 for clf in clfs:
