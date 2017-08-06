@@ -92,7 +92,7 @@ def get_selected_classifier():
     
     return clf
 
-def s_has_pre(word):
+def word_pre_index(word):
     """
     查看前缀表，看看word是否有相关的前缀
 
@@ -147,7 +147,7 @@ def getInfoOfPronsFromTrain(word,prons):
         features (list): The feature list of the training data sample.
             相关的feature构造就在这个函数里面去实现就好
             features 对应的意义：
-    features = vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
+            features = vowels_seq + combhash_seq + [vowels_count, pre_index] 
 
             [0,3] 该单词从左到右的元音序列，题目已经限制元音数小于5，不存在赋值为-1 
                 eg. 若发音从左到右的元音是是AE,AH， 则结果为 [1,3,-1,-1]
@@ -188,10 +188,10 @@ def getInfoOfPronsFromTrain(word,prons):
         vowels_seq.append(-1)
         combhash_seq.append(-1)
 
-    is_has_pre = s_has_pre(word)
+    pre_index = word_pre_index(word)
 
     # 在这里构造出features，想要改的话也就在这里进行增删
-    features = vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
+    features = vowels_seq + combhash_seq + [vowels_count, pre_index] 
 
     # 获得重音位置，get到label
     label = 0
@@ -240,7 +240,7 @@ def getInfoFromTest(word, prons):
     """
     eg. LEARNING:L ER N IH NG
     """
-    is_has_pre = s_has_pre(word)
+    pre_index = word_pre_index(word)
     mapprons = [PHONEMES[p] for p in prons.split(' ')]
 
     vowels_count = sum([x < 15 for x in mapprons])
@@ -265,7 +265,7 @@ def getInfoFromTest(word, prons):
         vowels_seq.append(-1)
         combhash_seq.append(-1)
 
-    return vowels_seq + combhash_seq + [vowels_count, is_has_pre] 
+    return vowels_seq + combhash_seq + [vowels_count, pre_index] 
 
 def testing_preprocess(data):
     """

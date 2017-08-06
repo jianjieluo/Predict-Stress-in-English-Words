@@ -1,11 +1,24 @@
-from submission import getInfoOfPronsFromTrain, getInfoFromTest
+from submission import getInfoOfPronsFromTrain, getInfoFromTest, c_v_comb_hashing
 from pytest import raises
+
+def test_c_v_comb_hashing():
+    test1 = (1,2,3,4)
+    test2 = (20,1,4)
+    test3 = (1,33)
+    test4 = (1,)
+    test5 = (11,22,33,15)
+
+    assert c_v_comb_hashing(test1) == 1020304
+    assert c_v_comb_hashing(test2) == 200104
+    assert c_v_comb_hashing(test3) == 133
+    assert c_v_comb_hashing(test4) == 1
+    assert c_v_comb_hashing(test5) == 11223315
 
 
 def test_getInfoOfPronsFromTrain():
     train1 = 'ENSINGER:EH1 N S IH0 N JH ER0'
     train2 = 'CANGELOSI:K AA0 NG G EH0 L OW1 S IY0'
-    train3 = 'HADDOW:HH AE1 D OW0'
+    train3 = 'JUNELLA:JH UW2 N EH1 L AH0'
     train4 = 'DECONSTRUCTION:D IY0 K AH0 N S T R AH1 K SH AH0 N'
     train5 = 'TOYA:T OY1 AH0'
 
@@ -20,6 +33,9 @@ def test_getInfoOfPronsFromTrain():
 
     assert f2 == [0,6,11,10,2400,282106,2511,3010,4,-1]
     assert l2 == 3
+
+    assert f3 == [14,6,2,-1,2314,2706,2502,-1,3,-1]
+    assert l3 == 2
 
     assert f4 == [10,2,2,2,1810,2402,2730322902,243102,4,525]
     assert l4 == 3
@@ -50,3 +66,4 @@ def test_getInfoFromTest():
     assert arr1 == [8,2,-1,-1,1808,3202,-1,-1,2,-1]
     assert arr2 == [5,9,-1,-1,2605,2709,-1,-1,2,308]
     assert arr3 == [2,10,-1,-1,2602,3110,-1,-1,2,-1]
+    assert arr4 == [7,9,-1,-1,2507,2709,-1,-1,2,-1]
