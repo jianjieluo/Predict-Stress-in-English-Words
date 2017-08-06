@@ -124,7 +124,7 @@ def c_v_comb_hashing(tu):
         step3. 音标map：[25, 7, 27, 9, 28] （查submission.py里面的音标表）
         step4. 辅音+元音组合系列：[(25,7), (27,9)]. （这里没有考虑28，因为考虑的组合是以元音作为结尾）
         step5. 哈希一下：[2507, 2709]
-        step6. 最后的feature matrix的后四位：[2507, 2709, -1,-1]
+        step6. combhash_seq：[2507, 2709, -1,-1]
     """
     hashnu = 0
     l = len(tu)
