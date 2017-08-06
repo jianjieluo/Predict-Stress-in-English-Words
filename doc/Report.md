@@ -136,6 +136,7 @@ kd_tree                0.774136     0.8402365
 
 #### 1. 考虑-1的替换
 设置max_depth输出了决策树的初步训练模型，发现是通过数值比较来查找规律，一开始的实现，把不存在统一表示为-1，所以考虑，如果用一个不在前缀表或者音标表中出现过的非负数来替换掉-1，不知道f1是否会增加。于是借助jupyter notebook又写了一个辅助的输出。
+
 ![mean_train_f1_for_differnet_no](./img/mean_train_f1_for_differnet_no.png)
 
 ![mean_test_f1_for_differnet_no](./img/mean_test_f1_for_differnet_no.png)
