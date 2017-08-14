@@ -3,6 +3,8 @@ Machine Learning Project: Auto predict the place of stress in a word.
 
 A project task of a summer one-week course Data Mining in Sun Yat-sen University, China.
 
+I hope it can be a good code sample for new learner in Data Mining. This repo is related little to the implement of a classification while it focus on the consturction of the features matrix. It is convenient to use this repo to test your own thought about this problem.
+
 More project requirements are [here](https://github.com/longjj/Predict-Stress-in-English-Words/blob/master/Project.ipynb).
 
 ## Usage
@@ -36,6 +38,12 @@ This script is a top module for us to test our classifier module.
 Since the standard test set is too small, we use `cross_validation` here to split the standard big training data set into training set and testing set to check the `f1`.
 
 You can also **use it to test your own change in the `submission.py`**
+
+### Run Bascic Function test
+
+```python
+pytest test_getInfos.py
+```
 
 ### Related files
 
